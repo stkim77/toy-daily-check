@@ -1,16 +1,49 @@
-import { Layout, Menu } from 'antd';
+import React from 'react';
+import * as R from 'ramda';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { Layout, Row, Col, Menu } from 'antd';
+import { HEADER_MENU } from '../config/constant';
 
-const { Header, Content, Footer } = Layout;
+const { Header } = Layout;
 
-const headLayout = () => (
-  <Header className="header" style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-      <div className="logo" />
-      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-        <Menu.Item key="1">nav 1</Menu.Item>
-        <Menu.Item key="2">nav 2</Menu.Item>
-        <Menu.Item key="3">nav 3</Menu.Item>
-      </Menu>
-  </Header>
+const makeMenu = ( menuName : string) => (
+  <Menu.Item key={menuName}>
+    <Link href={`/${menuName}`}>
+      <a>{R.toUpper(menuName)}</a>
+    </Link>
+  </Menu.Item>
 );
+
+const headLayout = () => {
+  const { route } = useRouter();
+  const selectedKey = R.slice(1, Infinity, route);
+
+  return (
+    <React.Fragment>
+      <Header className="header" style={{ position: 'fixed', zIndex: 1, width: '100%', padding: '0', backgroundColor: 'white' }}>
+        <Row>
+          <Col flex="200px" style={{ padding: '0 25px'}}>
+            <div className="logoTitle">Make Habits</div>
+          </Col>
+          <Col flex="auto" style={{ padding: '0 25px'}}>
+            <Menu theme="light" mode="horizontal" defaultSelectedKeys={['home']} selectedKeys={[selectedKey]}>
+              {
+                !R.isEmpty(selectedKey) &&
+                R.map(makeMenu, HEADER_MENU)
+              }
+            </Menu>
+          </Col>
+        </Row>
+      </Header>
+      <style jsx>{`
+        .logoTitle {
+          font-size : 20px;
+          color: blue;
+        }
+      `}</style>
+    </React.Fragment>
+  );
+};
 
 export default headLayout;

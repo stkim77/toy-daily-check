@@ -25,11 +25,13 @@
     "mobx": "^5.15.4",
     "mobx-react": "^6.1.8",
     "next": "^9.3.4",
+    "ramda": "^0.27.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },
   "devDependencies": {
     "@types/node": "^13.11.0",
+    "@types/ramda": "github:types/npm-ramda#dist",
     "@types/react": "^16.9.32",
     "typescript": "^3.8.3"
   }
