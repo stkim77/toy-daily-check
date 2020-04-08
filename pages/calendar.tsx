@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import * as R from 'ramda';
-import { Layout, Menu, Breadcrumb } from 'antd';
+// import * as moment from 'moment';
+import { Layout, Menu, Calendar, Badge } from 'antd';
 import { CalendarOutlined, ScheduleOutlined } from '@ant-design/icons';
 import { Header, MenuPath } from '../components';
+import moment from 'moment';
 
 const { Content, Sider } = Layout;
 
@@ -11,6 +13,18 @@ enum SIDE_MENU {
   WEEK = "WEEK"
 };
 
+enum statusType {
+  success = 'success',
+  processing = 'processing',
+  default = 'default',
+  error = 'error',
+  warning = 'warning'
+}
+
+type listType = {
+  type: statusType,
+  content: string,
+};
 
 class Calender extends Component {
   state = {
@@ -26,6 +40,66 @@ class Calender extends Component {
     this.setState({selectedMenu: menuName});
   }
 
+  getListData = (value : moment.Moment) : listType[] => {
+    let listData;
+    switch (value.date()) {
+      case 8:
+        listData = [
+          { type: statusType.warning, content: 'This is warning event.' },
+          { type: statusType.success, content: 'This is usual event.' },
+        ];
+        break;
+      case 10:
+        listData = [
+          { type: statusType.warning, content: 'This is warning event.' },
+          { type: statusType.success, content: 'This is usual event.' },
+          { type: statusType.error, content: 'This is error event.' },
+        ];
+        break;
+      case 15:
+        listData = [
+          { type: statusType.warning, content: 'This is warning event' },
+          { type: statusType.success, content: 'This is very long usual event。。....' },
+          { type: statusType.error, content: 'This is error event 1.' },
+          { type: statusType.error, content: 'This is error event 2.' },
+          { type: statusType.error, content: 'This is error event 3.' },
+          { type: statusType.error, content: 'This is error event 4.' },
+        ];
+        break;
+      default:
+    }
+    return listData || [];
+  }
+  
+  dateCellRender = (value : moment.Moment) : React.ReactNode => {
+    const listData = this.getListData(value);
+    return (
+      <ul style={{padding: 0}}>
+        {listData.map(item => (
+          <li key={item.content}>
+            <Badge status={item.type} text={item.content} />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  
+  getMonthData = (value : moment.Moment) => {
+    if (value.month() === 8) {
+      return 1394;
+    }
+  }
+  
+  monthCellRender = (value : moment.Moment) : React.ReactNode => {
+    const num = this.getMonthData(value);
+    return num ? (
+      <div className="notes-month">
+        <section>{num}</section>
+        <span>Backlog number</span>
+      </div>
+    ) : null;
+  }
+  
   render() {
     return (
       <Layout style={{ minHeight: '100vh' }}>
@@ -61,7 +135,7 @@ class Calender extends Component {
                 background: 'white'
               }}
             >
-              Content
+              <Calendar dateCellRender={this.dateCellRender} monthCellRender={this.monthCellRender} />
             </Content>
           </Layout>
         </Layout>
