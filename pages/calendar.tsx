@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import * as R from 'ramda';
-// import * as moment from 'moment';
-import { Layout, Menu, Calendar, Badge } from 'antd';
+import { Layout, Menu, Calendar, Badge, Button } from 'antd';
 import { CalendarOutlined, ScheduleOutlined } from '@ant-design/icons';
 import { Header, MenuPath } from '../components';
 import moment from 'moment';
@@ -26,10 +25,20 @@ type listType = {
   content: string,
 };
 
+const getYearAndMonth = (value : moment.Moment) : { year : string, month : string} => {
+  return {
+    year : value.format('YYYY'),
+    month : value.format('MM')
+  }
+};
+
 class Calender extends Component {
   state = {
     collapsed: false,
-    selectedMenu: SIDE_MENU.MONTH
+    value: moment(),
+    selectedMenu: SIDE_MENU.MONTH,
+    displayedYear: moment().format('YYYY'),
+    displayedMonth: moment().format('MM')
   };
 
   onCollapse = (collapsed: boolean) => {
@@ -99,8 +108,45 @@ class Calender extends Component {
       </div>
     ) : null;
   }
+
+  selectDate = (value: moment.Moment) : void => {
+    const { displayedYear, displayedMonth } = this.state;
+    const { year: selectedYear, month: selectedMonth} = getYearAndMonth(value);
+
+    if (displayedYear===selectedYear && displayedMonth===selectedMonth) {
+      alert(`Want to input Data : ${value.format('YYYY-MM-DD')}`);
+      this.setState({
+        value
+      });
+      // TODO : show modal
+    } else {
+      alert(`Want to change Calendar`);
+      this.setState({
+        displayedYear: selectedYear,
+        displayedMonth: selectedMonth,
+        value
+      });
+    }
+  }
+
+  disabledDate = (currentDate: moment.Moment) : boolean => {
+    const { displayedYear, displayedMonth } = this.state;
+    const { year: currentYear, month: currentMonth} = getYearAndMonth(currentDate);
+
+    if (displayedYear===currentYear && displayedMonth===currentMonth) {
+      return false;
+    }
+    return true;
+  }
+
+  goToday = () : void => {
+    this.setState({
+      value: moment()
+    });
+  }
   
   render() {
+    const { value } = this.state;
     return (
       <Layout style={{ minHeight: '100vh' }}>
         <Header />
@@ -135,7 +181,15 @@ class Calender extends Component {
                 background: 'white'
               }}
             >
-              <Calendar dateCellRender={this.dateCellRender} monthCellRender={this.monthCellRender} />
+              <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+                <Button onClick={this.goToday}>Today</Button>
+              </div>
+              <Calendar
+                value={value}
+                dateCellRender={this.dateCellRender}
+                monthCellRender={this.monthCellRender}
+                disabledDate={this.disabledDate}
+                onSelect={this.selectDate} />
             </Content>
           </Layout>
         </Layout>
