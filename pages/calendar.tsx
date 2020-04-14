@@ -13,7 +13,7 @@ enum SIDE_MENU {
 class Calender extends Component {
   state = {
     collapsed: false,
-    selectedMenu: SIDE_MENU.WEEK
+    selectedMenu: SIDE_MENU.MONTH
   };
 
   onCollapse = (collapsed: boolean) => {

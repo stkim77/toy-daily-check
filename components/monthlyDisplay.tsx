@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { NextPageContext } from 'next';
 import * as R from 'ramda';
 import { Layout, Calendar, Badge, Button } from 'antd';
 import moment from 'moment';
@@ -18,6 +19,10 @@ type listType = {
   content: string,
 };
 
+type Props = {
+  testData?: string[]
+};
+
 const getYearAndMonth = (value : moment.Moment) : { year : string, month : string} => {
   return {
     year : value.format('YYYY'),
@@ -25,7 +30,11 @@ const getYearAndMonth = (value : moment.Moment) : { year : string, month : strin
   }
 };
 
-class MonthlyDisplay extends Component {
+class MonthlyDisplay extends Component<Props> {
+  static async getInitialProps({ req }: NextPageContext) {
+    return { testData: ['test'] };
+  }
+
   state = {
     collapsed: false,
     value: moment(),
@@ -71,32 +80,18 @@ class MonthlyDisplay extends Component {
   dateCellRender = (value : moment.Moment) : React.ReactNode => {
     const listData = this.getListData(value);
     return (
-      <ul style={{padding: 0}}>
-        {listData.map(item => (
-          <li key={item.content}>
-            <Badge status={item.type} text={item.content} />
-          </li>
-        ))}
-      </ul>
+      <div>
+        <ul style={{padding: 0}}>
+          {listData.map(item => (
+            <li key={item.content}>
+              <Badge status={item.type} text={item.content} />
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
   
-  getMonthData = (value : moment.Moment) => {
-    if (value.month() === 8) {
-      return 1394;
-    }
-  }
-  
-  monthCellRender = (value : moment.Moment) : React.ReactNode => {
-    const num = this.getMonthData(value);
-    return num ? (
-      <div className="notes-month">
-        <section>{num}</section>
-        <span>Backlog number</span>
-      </div>
-    ) : null;
-  }
-
   selectDate = (value: moment.Moment) : void => {
     const { displayedYear, displayedMonth } = this.state;
     const { year: selectedYear, month: selectedMonth} = getYearAndMonth(value);
@@ -134,6 +129,9 @@ class MonthlyDisplay extends Component {
   }
   
   render() {
+    const { testData } = this.props;
+    console.log(`testData : ${testData}`);
+
     const { value } = this.state;
     return (
       <React.Fragment>
@@ -142,8 +140,8 @@ class MonthlyDisplay extends Component {
         </div>
         <Calendar
           value={value}
+          // dateFullCellRender={this.dateCellRender}
           dateCellRender={this.dateCellRender}
-          monthCellRender={this.monthCellRender}
           disabledDate={this.disabledDate}
           onSelect={this.selectDate} />
       </React.Fragment>
