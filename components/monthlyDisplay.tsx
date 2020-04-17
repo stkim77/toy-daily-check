@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
 import * as R from 'ramda';
 import { Layout, Calendar, Badge, Button } from 'antd';
+import { calendarType, habitType } from '../config/constant';
 import moment from 'moment';
-
-moment.updateLocale("en", { week: {
-  dow: 1, // First day of week is Monday
-  doy: 4  // First week of year must contain 4 January (7 + 1 - 4)
-}});
-
-const { Content, Sider } = Layout;
+import { rmdir } from 'fs';
 
 enum statusType {
   success = 'success',
@@ -30,7 +25,7 @@ const getYearAndMonth = (value : moment.Moment) : { year : string, month : strin
   }
 };
 
-class MonthlyDisplay extends Component {
+class MonthlyDisplay extends Component<calendarType> {
   state = {
     collapsed: false,
     value: moment(),
@@ -43,34 +38,24 @@ class MonthlyDisplay extends Component {
   };
 
   getListData = (value : moment.Moment) : listType[] => {
-    let listData;
-    switch (value.date()) {
-      case 8:
-        listData = [
-          { type: statusType.warning, content: 'This is warning event.' },
-          { type: statusType.success, content: 'This is usual event.' },
-        ];
-        break;
-      case 10:
-        listData = [
-          { type: statusType.warning, content: 'This is warning event.' },
-          { type: statusType.success, content: 'This is usual event.' },
-          { type: statusType.error, content: 'This is error event.' },
-        ];
-        break;
-      case 15:
-        listData = [
-          { type: statusType.warning, content: 'This is warning event' },
-          { type: statusType.success, content: 'This is very long usual event。。....' },
-          { type: statusType.error, content: 'This is error event 1.' },
-          { type: statusType.error, content: 'This is error event 2.' },
-          { type: statusType.error, content: 'This is error event 3.' },
-          { type: statusType.error, content: 'This is error event 4.' },
-        ];
-        break;
-      default:
+    const { data } = this.props;
+    const nowMonth = value.month() + 1;
+    const nowDate = value.date();
+
+    const nowData = R.path([nowMonth, nowDate], data);
+    if (!R.isNil(nowData)) {
+      return R.map((obj : habitType) : listType => {
+        const { title, result } = obj;
+        return (
+          {
+            type: result ? statusType.success : statusType.error,
+            content: title
+          }
+      );
+      }, nowData);
     }
-    return listData || [];
+
+    return [];
   }
   
   dateCellRender = (value : moment.Moment) : React.ReactNode => {
@@ -78,8 +63,8 @@ class MonthlyDisplay extends Component {
     return (
       <div>
         <ul style={{padding: 0}}>
-          {listData.map(item => (
-            <li key={item.content}>
+          {listData.map((item, index) => (
+            <li key={index}>
               <Badge status={item.type} text={item.content} />
             </li>
           ))}
@@ -125,6 +110,7 @@ class MonthlyDisplay extends Component {
   }
   
   render() {
+    console.log(this.props.data)
     const { value } = this.state;
     return (
       <React.Fragment>
@@ -133,7 +119,6 @@ class MonthlyDisplay extends Component {
         </div>
         <Calendar
           value={value}
-          // dateFullCellRender={this.dateCellRender}
           dateCellRender={this.dateCellRender}
           disabledDate={this.disabledDate}
           onSelect={this.selectDate} />

@@ -3,6 +3,14 @@ import { Layout, Menu } from 'antd';
 import { GetStaticProps, GetServerSideProps } from 'next';
 import { CalendarOutlined, ScheduleOutlined } from '@ant-design/icons';
 import { Header, MenuPath, MonthlyDisplay, WeeklyDisplay } from '../components';
+import { data } from '../config/tempData';
+import { calendarType } from '../config/constant';
+import moment from 'moment';
+
+moment.updateLocale("en", { week: {
+  dow: 1, // First day of week is Monday
+  doy: 4  // First week of year must contain 4 January (7 + 1 - 4)
+}});
 
 const { Content, Sider } = Layout;
 
@@ -11,11 +19,7 @@ enum SIDE_MENU {
   WEEK = "WEEK"
 };
 
-type Props = {
-  testData?: string[]
-};
-
-class Calender extends Component<Props> {
+class Calender extends Component<calendarType> {
   state = {
     collapsed: false,
     selectedMenu: SIDE_MENU.MONTH
@@ -30,7 +34,6 @@ class Calender extends Component<Props> {
   }
 
   render() {
-    console.log(this.props);
     const { selectedMenu } = this.state;
     return (
       <Layout style={{ minHeight: '100vh' }}>
@@ -66,7 +69,7 @@ class Calender extends Component<Props> {
                 background: 'white'
               }}
             >
-              {selectedMenu===SIDE_MENU.MONTH ? <MonthlyDisplay/> : <WeeklyDisplay/>}
+              {selectedMenu===SIDE_MENU.MONTH ? <MonthlyDisplay {...this.props}/> : <WeeklyDisplay/>}
             </Content>
           </Layout>
         </Layout>
@@ -75,14 +78,8 @@ class Calender extends Component<Props> {
   }
 }
 
-// export const getServerSideProps: GetServerSideProps = async context => {
-//   console.log('Call getServerSideProps');
-//   return { props : {testData:['a', 'b']}};
-// };
-
-export const getStaticProps: GetStaticProps = async context => {
-  console.log('Call GetStaticProps');
-  return { props : {testData:['a', 'b']}};
+export const getServerSideProps: GetServerSideProps<calendarType> = async context => {
+  return { props : {data}};
 }
 
 export default Calender;

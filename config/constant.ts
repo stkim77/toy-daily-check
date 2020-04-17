@@ -39,6 +39,15 @@ export const WEEK_TITLE : weekTitleObj[] = [
   },
 ];
 
+export interface habitType {
+  title : string,
+  result : boolean
+};
+
+export interface calendarType {
+  data : habitType[][][]
+} ;
+
 // export const CALENDAR_SIDE_MENU : Array<{ name: string, icon: any }> = Array(
 //   {
 //     name : 'Month',
