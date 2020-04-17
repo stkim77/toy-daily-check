@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
-import { NextPageContext } from 'next';
 import * as R from 'ramda';
 import { Layout, Calendar, Badge, Button } from 'antd';
 import moment from 'moment';
+
+moment.updateLocale("en", { week: {
+  dow: 1, // First day of week is Monday
+  doy: 4  // First week of year must contain 4 January (7 + 1 - 4)
+}});
 
 const { Content, Sider } = Layout;
 
@@ -19,10 +23,6 @@ type listType = {
   content: string,
 };
 
-type Props = {
-  testData?: string[]
-};
-
 const getYearAndMonth = (value : moment.Moment) : { year : string, month : string} => {
   return {
     year : value.format('YYYY'),
@@ -30,11 +30,7 @@ const getYearAndMonth = (value : moment.Moment) : { year : string, month : strin
   }
 };
 
-class MonthlyDisplay extends Component<Props> {
-  static async getInitialProps({ req }: NextPageContext) {
-    return { testData: ['test'] };
-  }
-
+class MonthlyDisplay extends Component {
   state = {
     collapsed: false,
     value: moment(),
@@ -129,9 +125,6 @@ class MonthlyDisplay extends Component<Props> {
   }
   
   render() {
-    const { testData } = this.props;
-    console.log(`testData : ${testData}`);
-
     const { value } = this.state;
     return (
       <React.Fragment>
