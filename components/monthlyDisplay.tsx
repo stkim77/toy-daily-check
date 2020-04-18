@@ -110,7 +110,6 @@ class MonthlyDisplay extends Component<calendarType> {
   }
   
   render() {
-    console.log(this.props.data)
     const { value } = this.state;
     return (
       <React.Fragment>

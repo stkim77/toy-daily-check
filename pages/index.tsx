@@ -23,7 +23,7 @@ class Index extends Component {
 
   render() {
     if (this.state.auth) {
-      Router.push(`/${HEADER_MENU[0]}`);
+      Router.push(`/${HEADER_MENU[0]}?menu=MONTH`);
       // return null;
     };
 
