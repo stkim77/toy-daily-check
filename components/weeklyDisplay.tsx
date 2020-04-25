@@ -21,7 +21,7 @@ const defaultHeadStype : React.CSSProperties = {
 const isToday = (dateStr : string) : boolean => {
   const todayStr = moment().format('YYYY-MM-DD');
 
-  console.log(`${dateStr} : ${todayStr}`);
+  // console.log(`${dateStr} : ${todayStr}`);
 
   if (dateStr === todayStr) return true;
 

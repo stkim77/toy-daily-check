@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as R from 'ramda';
+import Router from 'next/router';
 import { Layout, Calendar, Badge, Button } from 'antd';
 import { calendarType, habitType } from '../config/constant';
 import moment from 'moment';
@@ -84,12 +85,14 @@ class MonthlyDisplay extends Component<calendarType> {
       });
       // TODO : show modal
     } else {
-      alert(`Want to change Calendar`);
-      this.setState({
-        displayedYear: selectedYear,
-        displayedMonth: selectedMonth,
-        value
-      });
+      alert(`Want to change Calendar : ${value.format('YYYY-MM-DD')}`);
+      // call router
+      Router.push(`/calendar?menu=MONTH&date=${value.format('YYYY-MM-DD')}`);
+      // this.setState({
+      //   displayedYear: selectedYear,
+      //   displayedMonth: selectedMonth,
+      //   value
+      // });
     }
   }
 

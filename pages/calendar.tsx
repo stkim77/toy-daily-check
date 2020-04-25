@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { GetStaticProps, GetServerSideProps } from 'next';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import * as R from 'ramda';
 import { CalendarOutlined, ScheduleOutlined } from '@ant-design/icons';
 import { Header, MenuPath, MonthlyDisplay, WeeklyDisplay } from '../components';
@@ -9,6 +9,7 @@ import { data } from '../config/tempData';
 import { calendarType } from '../config/constant';
 import moment from 'moment';
 import { ParsedUrlQuery } from 'querystring';
+import { connect } from 'http2';
 
 moment.updateLocale("en", { week: {
   dow: 1, // First day of week is Monday
@@ -39,6 +40,13 @@ const getMenu = (query : ParsedUrlQuery) : string => {
   return SIDE_MENU.MONTH;
 }
 
+const getDate = (query : ParsedUrlQuery) : moment.Moment => {
+  if (!R.isNil(query.date)) {
+    return moment(query.date);
+  }
+  return moment();
+}
+
 function Calender ({data} : calendarType) {
   const { query } = useRouter();
   const menu = getMenu(query);
@@ -56,6 +64,7 @@ function Calender ({data} : calendarType) {
             defaultSelectedKeys={[SIDE_MENU.MONTH]}
             selectedKeys={[menu]}
             onClick={({ item, key })=>{
+              Router.push(`/calendar?menu=${key}`);
               selectMenu(key);
             }}
           >
@@ -88,6 +97,12 @@ function Calender ({data} : calendarType) {
 }
 
 export const getServerSideProps: GetServerSideProps<calendarType> = async context => {
+  const { query } = context;
+  const selectedDate = getDate(query);
+  console.log('getServerSideProps');
+  console.log(getMenu(query));
+  console.log(selectedDate.format('YYYY-MM-DD'));
+
   return { props : {data}};
 }
 
