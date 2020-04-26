@@ -4,12 +4,12 @@ import { GetStaticProps, GetServerSideProps } from 'next';
 import Router, { useRouter } from 'next/router';
 import * as R from 'ramda';
 import { CalendarOutlined, ScheduleOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import { ParsedUrlQuery } from 'querystring';
 import { Header, MenuPath, MonthlyDisplay, WeeklyDisplay } from '../components';
 import { data } from '../config/tempData';
 import { calendarType } from '../config/constant';
-import moment from 'moment';
-import { ParsedUrlQuery } from 'querystring';
-import { connect } from 'http2';
+import dataApi from '../lib/dataApi';
 
 moment.updateLocale("en", { week: {
   dow: 1, // First day of week is Monday
@@ -88,7 +88,7 @@ function Calender ({data} : calendarType) {
               background: 'white'
             }}
           >
-            {selectedMenu===SIDE_MENU.MONTH ? <MonthlyDisplay data={[]}/> : <WeeklyDisplay/>}
+            {selectedMenu===SIDE_MENU.MONTH ? <MonthlyDisplay data={data}/> : <WeeklyDisplay/>}
           </Content>
         </Layout>
       </Layout>
@@ -98,11 +98,9 @@ function Calender ({data} : calendarType) {
 
 export const getServerSideProps: GetServerSideProps<calendarType> = async context => {
   const { query } = context;
-  const selectedDate = getDate(query);
-  console.log('getServerSideProps');
-  console.log(getMenu(query));
-  console.log(selectedDate.format('YYYY-MM-DD'));
-
+  const nowDate = getDate(query);
+  const data = dataApi.getData(nowDate);
+  console.log('Load Data');
   return { props : {data}};
 }
 

@@ -45,16 +45,5 @@ export interface habitType {
 };
 
 export interface calendarType {
-  data : habitType[][][]
+  data : habitType[][]
 } ;
-
-// export const CALENDAR_SIDE_MENU : Array<{ name: string, icon: any }> = Array(
-//   {
-//     name : 'Month',
-//     icon : CalendarOutlined
-//   },
-//   {
-//     name : 'Week',
-//     icon : ScheduleOutlined
-//   }
-// );

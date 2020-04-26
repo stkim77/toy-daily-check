@@ -1,10 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import * as R from 'ramda';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 import { Layout, Calendar, Badge, Button } from 'antd';
 import { calendarType, habitType } from '../config/constant';
 import moment from 'moment';
 import { rmdir } from 'fs';
+import { ParsedUrlQuery } from 'querystring';
+
 
 enum statusType {
   success = 'success',
@@ -19,6 +21,16 @@ type listType = {
   content: string,
 };
 
+const compareEqualYearAndMonth = (fromDate:moment.Moment, toDate:moment.Moment) : boolean => {
+  const { year: fromYear, month: fromMonth} = getYearAndMonth(fromDate);
+  const { year: toYear, month: toMonth} = getYearAndMonth(toDate);
+
+  if (fromYear===toYear && fromMonth===toMonth) {
+    return true;
+  }
+  return false;
+};
+
 const getYearAndMonth = (value : moment.Moment) : { year : string, month : string} => {
   return {
     year : value.format('YYYY'),
@@ -26,107 +38,81 @@ const getYearAndMonth = (value : moment.Moment) : { year : string, month : strin
   }
 };
 
-class MonthlyDisplay extends Component<calendarType> {
-  state = {
-    collapsed: false,
-    value: moment(),
-    displayedYear: moment().format('YYYY'),
-    displayedMonth: moment().format('MM')
-  };
-
-  onCollapse = (collapsed: boolean) => {
-    this.setState({ collapsed });
-  };
-
-  getListData = (value : moment.Moment) : listType[] => {
-    const { data } = this.props;
-    const nowMonth = value.month() + 1;
-    const nowDate = value.date();
-
-    const nowData = R.path([nowMonth, nowDate], data);
-    if (!R.isNil(nowData)) {
-      return R.map((obj : habitType) : listType => {
-        const { title, result } = obj;
-        return (
-          {
-            type: result ? statusType.success : statusType.error,
-            content: title
-          }
-      );
-      }, nowData);
-    }
-
-    return [];
+const getDate = (query : ParsedUrlQuery) : moment.Moment => {
+  if (!R.isNil(query.date)) {
+    return moment(query.date);
   }
-  
-  dateCellRender = (value : moment.Moment) : React.ReactNode => {
-    const listData = this.getListData(value);
-    return (
-      <div>
-        <ul style={{padding: 0}}>
-          {listData.map((item, index) => (
-            <li key={index}>
-              <Badge status={item.type} text={item.content} />
-            </li>
-          ))}
-        </ul>
+  return moment();
+}
+
+const getListData = (value : moment.Moment, data : habitType[][]) : listType[] => {
+  const month = value.month();
+  const day = value.date();
+  console.log(`${month} : ${day}`);
+
+  const nowData = R.path<habitType[]>([day], data);
+  if (!R.isNil(nowData)) {
+    return R.map((obj : habitType) : listType => {
+      const { title, result } = obj;
+      return (
+        {
+          type: result ? statusType.success : statusType.error,
+          content: title
+        }
+    );
+    }, nowData);
+  }
+
+  return [];
+}
+
+
+function MonthlyDisplay ({data} : calendarType) {
+  const { query } = useRouter();
+  const displayDate : moment.Moment = getDate(query);
+  const [value, setValue] = useState<moment.Moment>(getDate(query));
+    
+  return (
+    <React.Fragment>
+      <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+        <Button onClick={()=>{
+          const now = moment();
+            setValue(now); 
+            if (!compareEqualYearAndMonth(now, displayDate)) {
+              Router.push(`/calendar?menu=MONTH&date=${now.format('YYYY-MM-DD')}`);
+            }
+          }}
+        >Today</Button>
       </div>
-    );
-  }
-  
-  selectDate = (value: moment.Moment) : void => {
-    const { displayedYear, displayedMonth } = this.state;
-    const { year: selectedYear, month: selectedMonth} = getYearAndMonth(value);
+      <Calendar
+        value={value}
+        disabledDate={currentDate => {
+          return !compareEqualYearAndMonth(currentDate, displayDate);
+        }}
+        dateCellRender={value=>{
+          const listData = getListData(value, data);
+          return (
+            <div>
+              <ul style={{padding: 0}}>
+                {listData.map((item, index) => (
+                  <li key={index}>
+                    <Badge status={item.type} text={item.content} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        }}
+        onSelect={selectDate => {
+          setValue(selectDate);
+          if (!compareEqualYearAndMonth(selectDate, displayDate)) {
+            Router.push(`/calendar?menu=MONTH&date=${selectDate.format('YYYY-MM-DD')}`);
+          }
+        }}
+      />
 
-    if (displayedYear===selectedYear && displayedMonth===selectedMonth) {
-      alert(`Want to input Data : ${value.format('YYYY-MM-DD')}`);
-      this.setState({
-        value
-      });
-      // TODO : show modal
-    } else {
-      alert(`Want to change Calendar : ${value.format('YYYY-MM-DD')}`);
-      // call router
-      Router.push(`/calendar?menu=MONTH&date=${value.format('YYYY-MM-DD')}`);
-      // this.setState({
-      //   displayedYear: selectedYear,
-      //   displayedMonth: selectedMonth,
-      //   value
-      // });
-    }
-  }
-
-  disabledDate = (currentDate: moment.Moment) : boolean => {
-    const { displayedYear, displayedMonth } = this.state;
-    const { year: currentYear, month: currentMonth} = getYearAndMonth(currentDate);
-
-    if (displayedYear===currentYear && displayedMonth===currentMonth) {
-      return false;
-    }
-    return true;
-  }
-
-  goToday = () : void => {
-    this.setState({
-      value: moment()
-    });
-  }
-  
-  render() {
-    const { value } = this.state;
-    return (
-      <React.Fragment>
-        <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-          <Button onClick={this.goToday}>Today</Button>
-        </div>
-        <Calendar
-          value={value}
-          dateCellRender={this.dateCellRender}
-          disabledDate={this.disabledDate}
-          onSelect={this.selectDate} />
-      </React.Fragment>
-    );
-  }
+    </React.Fragment>
+  );
 }
 
 export default MonthlyDisplay;
