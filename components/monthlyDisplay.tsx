@@ -45,22 +45,24 @@ const getDate = (query : ParsedUrlQuery) : moment.Moment => {
   return moment();
 }
 
-const getListData = (value : moment.Moment, data : habitType[][]) : listType[] => {
-  const month = value.month();
-  const day = value.date();
-  console.log(`${month} : ${day}`);
-
-  const nowData = R.path<habitType[]>([day], data);
-  if (!R.isNil(nowData)) {
-    return R.map((obj : habitType) : listType => {
-      const { title, result } = obj;
-      return (
-        {
-          type: result ? statusType.success : statusType.error,
-          content: title
-        }
-    );
-    }, nowData);
+const getListData = (displayDate : moment.Moment , value : moment.Moment, data : habitType[][]) : listType[] => {
+  if (compareEqualYearAndMonth(displayDate, value)) {
+    const month = value.month();
+    const day = value.date();
+    console.log(`${month} : ${day}`);
+  
+    const nowData = R.path<habitType[]>([day], data);
+    if (!R.isNil(nowData)) {
+      return R.map((obj : habitType) : listType => {
+        const { title, result } = obj;
+        return (
+          {
+            type: result ? statusType.success : statusType.error,
+            content: title
+          }
+      );
+      }, nowData);
+    }  
   }
 
   return [];
@@ -85,12 +87,13 @@ function MonthlyDisplay ({data} : calendarType) {
         >Today</Button>
       </div>
       <Calendar
+        mode='month'
         value={value}
         disabledDate={currentDate => {
           return !compareEqualYearAndMonth(currentDate, displayDate);
         }}
         dateCellRender={value=>{
-          const listData = getListData(value, data);
+          const listData = getListData(displayDate, value, data);
           return (
             <div>
               <ul style={{padding: 0}}>
