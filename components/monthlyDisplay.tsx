@@ -2,11 +2,10 @@ import React, { Component, useState } from 'react';
 import * as R from 'ramda';
 import Router, { useRouter } from 'next/router';
 import { Layout, Calendar, Badge, Button } from 'antd';
-import { calendarType, habitType } from '../config/constant';
 import moment from 'moment';
-import { rmdir } from 'fs';
 import { ParsedUrlQuery } from 'querystring';
-
+import { calendarType, habitType } from '../config/constant';
+import DailyCheckDialog from './dailyCheckDialog';
 
 enum statusType {
   success = 'success',
@@ -49,7 +48,6 @@ const getListData = (displayDate : moment.Moment , value : moment.Moment, data :
   if (compareEqualYearAndMonth(displayDate, value)) {
     const month = value.month();
     const day = value.date();
-    console.log(`${month} : ${day}`);
   
     const nowData = R.path<habitType[]>([day-1], data);
     if (!R.isNil(nowData)) {
@@ -73,9 +71,11 @@ function MonthlyDisplay ({data} : calendarType) {
   const { query } = useRouter();
   const displayDate : moment.Moment = getDate(query);
   const [value, setValue] = useState<moment.Moment>(getDate(query));
+  const [showDialog, setShowDialog] = useState<boolean>(true);
     
   return (
     <React.Fragment>
+      {showDialog && <DailyCheckDialog/>}
       <div style={{display: 'flex', justifyContent: 'flex-end'}}>
         <Button onClick={()=>{
           const now = moment();
