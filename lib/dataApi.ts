@@ -2,6 +2,44 @@ import * as R from 'ramda';
 import moment from 'moment';
 import { calendarType, habitType } from '../config/constant';
 
+const habitList: string[] = [
+  'read book', 'go to gim', 'study English'
+];
+let loadData = false;
+let temporaryData:habitType[][][] = [];
+
+const initCalendarData = () => {
+  const thisYear = moment().year();
+  const firstDate = moment(`${thisYear}-01-01`);
+  loadData = true;
+  while(thisYear === firstDate.year()) {
+    temporaryData.push(makeMonthData(moment(firstDate)));
+    firstDate.add(1, 'month');
+  }
+};
+
+
+const makeMonthData = (date: moment.Moment) : habitType[][] => {
+  let monthData: habitType[][] = [];
+  const thisMonth = date.month();
+  while(thisMonth === date.month()) {
+    monthData.push(makeDayData());
+    date.add(1, 'day');
+  }
+  return monthData;
+};
+
+const makeDayData = () : habitType[] => {
+  let dayData: habitType[] = [];
+  for (const title of habitList) {
+    const result = R.gte(Math.floor(Math.random() * 10), 5);
+    dayData.push({title, result});
+  }
+  return dayData;
+};
+
+const updateCalendarData = () => {};
+
 const habitData = {
   2020 : {
     0 : {},
@@ -37,23 +75,18 @@ const habitData = {
   }
 };
 
-const getData = (date : moment.Moment) => {
-  const year = date.year();
+if (loadData===false) {
+  initCalendarData();
+}
+
+const getData = (date : moment.Moment) : habitType[][] => {
   const month = date.month();
-  const requestedData : object | undefined = R.path<object>([year, month], habitData);
-  if (!R.isNil(requestedData)) {
-    const result = [];
-    for (let i = 0 ; i<32 ; i++) {
-      const tempData = R.path<habitType[]>([i], requestedData);
-      if (R.isNil(tempData)) {
-        result.push([]);
-      } else {
-        result.push(tempData);
-      }
-    }
-    return result;
+  const requestedData : habitType[][] | undefined = R.path<habitType[][]>([month], temporaryData);
+
+  if (R.isNil(requestedData)) {
+    return [];
   }
-  return [];
+  return requestedData;
 };
 
 export default {

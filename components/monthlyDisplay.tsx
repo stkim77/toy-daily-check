@@ -51,7 +51,7 @@ const getListData = (displayDate : moment.Moment , value : moment.Moment, data :
     const day = value.date();
     console.log(`${month} : ${day}`);
   
-    const nowData = R.path<habitType[]>([day], data);
+    const nowData = R.path<habitType[]>([day-1], data);
     if (!R.isNil(nowData)) {
       return R.map((obj : habitType) : listType => {
         const { title, result } = obj;
