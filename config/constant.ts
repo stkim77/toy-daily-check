@@ -46,4 +46,4 @@ export interface habitType {
 
 export interface calendarType {
   data : habitType[][]
-} ;
+};

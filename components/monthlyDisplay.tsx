@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react';
 import * as R from 'ramda';
 import Router, { useRouter } from 'next/router';
-import { Layout, Calendar, Badge, Button } from 'antd';
+import { Layout, Calendar, Badge, Button, Modal } from 'antd';
 import moment from 'moment';
 import { ParsedUrlQuery } from 'querystring';
 import { calendarType, habitType } from '../config/constant';
@@ -75,7 +75,7 @@ function MonthlyDisplay ({data} : calendarType) {
     
   return (
     <React.Fragment>
-      {showDialog && <DailyCheckDialog/>}
+      {showDialog && <DailyCheckDialog setShowDialog={setShowDialog}/>}
       <div style={{display: 'flex', justifyContent: 'flex-end'}}>
         <Button onClick={()=>{
           const now = moment();

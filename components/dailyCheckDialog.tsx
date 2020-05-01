@@ -1,35 +1,56 @@
 import React, { Component, useState } from 'react';
+import { Button, Modal } from 'antd';
+import { props } from 'ramda';
 
-function DailyCheckDialog () {
+interface checkDialogType {
+  setShowDialog : Function
+}
+
+// const handleOk = () => {
+//   this.setState({ loading: true });
+//   setTimeout(() => {
+//     this.setState({ loading: false, visible: false });
+//   }, 3000);
+// };
+
+function DailyCheckDialog ({setShowDialog} : checkDialogType) {
+  const [loading, setLoading] = useState<boolean>(false);
+
   return (
-    <React.Fragment>
-      <div className="spin-bg-div">
-        <div className='spin-div'>
-          Dialog
-        </div>
-      </div>
-      <style jsx>{`
-        .spin-bg-div {
-          background: rgba(0, 0, 0, 0.2);
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 1001;
-        }
-        .spin-div {
-          position: absolute;
-          background-color: #FFF;
-          left: 50%;
-          top: 50%;
-          margin-top: -43px;
-          margin-left: -43px;
-        }
-      `}</style>
-    </React.Fragment>
+    <Modal
+      visible={true}
+      title="Title"
+      onOk={()=>{
+        setLoading(true);
+        setTimeout(()=>{
+          setLoading(false);
+          setShowDialog(false);
+        }, 1000);
+      }}
+      onCancel={()=>{setShowDialog(false);}}
+      footer={[
+        <Button key="back" onClick={()=>{setShowDialog(false);}}>
+          Return
+        </Button>,
+        <Button key="submit" type="primary" loading={loading}
+          onClick={()=>{
+            setLoading(true);
+            setTimeout(()=>{
+              setLoading(false);
+              setShowDialog(false);
+            }, 1000);
+          }}
+        >
+          Submit
+        </Button>,
+      ]}
+    >
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </Modal>
   );
 }
 
